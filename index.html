@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cloud Voting System</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🗳️ Cloud Voting System</h1>
+    <p>Cast your vote and see the live results!</p>
+
+    <div class="button-group">
+      <button onclick="castVote('Option A')">Vote for Option A</button>
+      <button onclick="castVote('Option B')">Vote for Option B</button>
+    </div>
+
+    <div class="chart-section">
+      <h2>📊 Live Results</h2>
+      <canvas id="voteChart"></canvas>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
