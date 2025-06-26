@@ -12,7 +12,7 @@ async function castVote(option) {
 }
 
 async function loadVotes() {
-    const res = await fetch(`${apiUrl}/votes`);
+    const res = await fetch(`${apiUrl}/results`);
     const data = await res.json();
 
     const labels = data.map(item => item.id);
