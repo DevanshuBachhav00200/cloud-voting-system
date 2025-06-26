@@ -1,4 +1,4 @@
-const apiUrl = 'YOUR_CLOUD_RUN_URL'; // Replace with your real backend URL
+const apiUrl = ' https://cloud-voting-api-1018102396253.asia-south1.run.app'; // Replace with your real backend URL
 
 let chart;
 
