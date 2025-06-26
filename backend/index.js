@@ -1,48 +1,47 @@
-import express from 'express';
-import cors from 'cors';
-import { Firestore, FieldValue } from '@google-cloud/firestore';
+const express = require('express');
+const cors = require('cors');
+const { Firestore } = require('@google-cloud/firestore');
 
 const app = express();
+const port = process.env.PORT || 8080;
+
+// ✅ Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json());
 
-const db = new Firestore();
-const votesCollection = db.collection('votes');
+// ✅ Initialize Firestore
+const firestore = new Firestore();
 
-app.get('/votes', async (req, res) => {
-    try {
-        const snapshot = await votesCollection.get();
-        const votes = [];
-        snapshot.forEach(doc => {
-            votes.push({ id: doc.id, ...doc.data() });
-        });
-        res.json(votes);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch votes', details: err.message });
-    }
-});
-
+// ✅ POST /vote – Save vote to Firestore
 app.post('/vote', async (req, res) => {
-    try {
-        const { option } = req.body;
-        if (!option) return res.status(400).json({ error: 'Option is required' });
+  const { option } = req.body;
+  const docRef = firestore.collection('votes').doc(option);
 
-        const docRef = votesCollection.doc(option);
-        const doc = await docRef.get();
-
-        if (!doc.exists) return res.status(404).json({ error: 'Option does not exist in Firestore' });
-
-        await docRef.update({
-            count: FieldValue.increment(1)
-        });
-
-        res.json({ message: `Vote recorded for ${option}` });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to cast vote', details: err.message });
-    }
+  try {
+    await docRef.set({ count: Firestore.FieldValue.increment(1) }, { merge: true });
+    res.status(200).send('Vote recorded');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error recording vote');
+  }
 });
 
-const port = process.env.PORT || 8080;
+// ✅ GET /results – Fetch vote counts
+app.get('/results', async (req, res) => {
+  try {
+    const snapshot = await firestore.collection('votes').get();
+    const results = {};
+    snapshot.forEach(doc => {
+      results[doc.id] = doc.data().count || 0;
+    });
+    res.status(200).json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching results');
+  }
+});
+
+// ✅ Start server
 app.listen(port, () => {
-    console.log(`✅ Server running at http://localhost:${port}`);
+  console.log(`Server running on port ${port}`);
 });
