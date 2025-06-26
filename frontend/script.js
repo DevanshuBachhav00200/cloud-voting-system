@@ -1,4 +1,4 @@
-const apiUrl = 'https://cloud-voting-api-1018102396253.asia-south1.run.app/results';
+const apiUrl = 'https://cloud-voting-api-1018102396253.asia-south1.run.app';
 
 let chart;
 
