@@ -1,55 +1,69 @@
-const apiUrl = 'https://cloud-voting-api-1018102396253.asia-south1.run.app'; // Replace with your real backend URL
+const apiUrl = 'https://cloud-voting-api-1018102396253.asia-south1.run.app';
 
 let chart;
 
 async function castVote(option) {
-    await fetch(`${apiUrl}/vote`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ option })
-    });
-    loadVotes();
+    try {
+        const response = await fetch(`${apiUrl}/vote`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ option })
+        });
+
+        const result = await response.text();
+        console.log('Vote response:', result);
+        loadVotes();
+    } catch (error) {
+        console.error('Error casting vote:', error);
+        alert('Error casting vote. Please try again.');
+    }
 }
 
 async function loadVotes() {
-    const res = await fetch(`${apiUrl}/results`);
-    const data = await res.json();
+    try {
+        const res = await fetch(`${apiUrl}/results`);
+        const data = await res.json();
 
-    const labels = data.map(item => item.id);
-    const counts = data.map(item => item.count);
+        // Convert object to array format
+        const labels = Object.keys(data);
+        const counts = Object.values(data);
 
-    const ctx = document.getElementById('voteChart').getContext('2d');
+        const ctx = document.getElementById('voteChart').getContext('2d');
 
-    if (chart) {
-        chart.data.labels = labels;
-        chart.data.datasets[0].data = counts;
-        chart.update();
-    } else {
-        chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Votes',
-                    data: counts,
-                    backgroundColor: ['#4e54c8', '#34ace0']
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
+        if (chart) {
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = counts;
+            chart.update();
+        } else {
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Votes',
+                        data: counts,
+                        backgroundColor: ['#4e54c8', '#34ace0']
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
+    } catch (error) {
+        console.error('Error loading votes:', error);
+        alert('Failed to load results.');
     }
 }
 
